@@ -58,7 +58,13 @@ class Database:
             if not (start <= r < stop): continue
             print(rule)
 
-    def dump(self, fname):
+    def dump(self):
+        '''
+        Returns:
+            tokens: sorted list of all unique tokens in the database
+            variables: sorted list of all unique variables in the database
+            constants: sorted list of all unique constants in the database
+        '''
 
         tokens = set([tok for stmt in self.statements.values() for tok in stmt.tokens])
         variables = set([var for rule in self.rules.values() for var in rule.variables])
@@ -67,6 +73,7 @@ class Database:
         # print(variables)
         # print(constants)
         # with open(fname, "w") as f: f.write(s)
+        return sorted(tokens), sorted(variables), sorted(constants)
 
 @profile
 def parse(fpath, max_rules=-1, last_rule=""):
