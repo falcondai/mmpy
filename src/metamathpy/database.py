@@ -29,12 +29,13 @@ Frame:
 Statement = namedtuple('Statement', ('label', 'tag', 'tokens', 'proof'))
 
 class Rule:
-    def __init__(self, consequent, essentials, floatings, disjoint, variables):
+    def __init__(self, consequent, essentials, floatings, disjoint, variables, comment):
         self.consequent = consequent
         self.essentials = essentials
         self.floatings = floatings
         self.disjoint = disjoint
         self.variables = variables
+        self.comment = comment
     def finalize(self):
         self.hypotheses = self.floatings + self.essentials
     def __str__(self):
@@ -43,6 +44,8 @@ class Rule:
         for hypothesis in self.hypotheses:
             s += f"  {hypothesis.label} {hypothesis.tag} {' '.join(hypothesis.tokens)} $.\n"
         return s
+    def __repr__(self):
+        return self.__str__()
 
 def new_frame(): return {tag: [] for tag in "cvdfe"}
 
@@ -67,7 +70,7 @@ class Database:
         # print(variables)
         # print(constants)
         # with open(fname, "w") as f: f.write(s)
-        return tokens, variables, constants
+        return sorted(tokens), sorted(variables), sorted(constants)
 
 @profile
 def parse(fpath, max_rules=-1, last_rule=""):
@@ -100,9 +103,14 @@ def parse(fpath, max_rules=-1, last_rule=""):
                 #     input('..')
 
                 # skip comments
-                if token == "$(": in_comment = True
-                elif token == "$)": in_comment = False
-                if in_comment: continue
+                if token == "$(":
+                    in_comment = True
+                    comment = []
+                elif token == "$)":
+                    in_comment = False
+                if in_comment:
+                    comment.append(token)
+                    continue
 
                 # update scope
                 if token == "${": frames.append(new_frame())
@@ -146,7 +154,9 @@ def parse(fpath, max_rules=-1, last_rule=""):
 
                     # include placeholder "rules" for hypotheses
                     if current_tag in "fea=":
-                        rule = Rule(statement, [], [], set(), set())
+                        comment_str = ' '.join(comment[1:]) if comment else ''
+                        comment = []
+                        rule = Rule(statement, [], [], set(), set(), comment_str)
 
                     # attach scope to axioms and propositions
                     if current_tag in "a=":

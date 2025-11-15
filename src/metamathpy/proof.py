@@ -74,7 +74,7 @@ class ProofStep:
         return self._normal_proof
 
 """
-Apply a rule to a sequence of dependencies, each a previous proof step 
+Apply a rule to a sequence of dependencies, each a previous proof step
 The conclusions of each dependency should match the hypotheses of the rule
 returns the resulting proof step and a status message
 If the rule does not apply, proof step is None, otherwise status message is ""
@@ -308,6 +308,9 @@ def verify_all(database, start=0, stop=-1):
 
         verify_proof(database, claim)
 
+def decompress_proof(database, claim):
+    root, steps = verify_proof(database, claim)
+    return root.normal_proof()
 
 if __name__ == "__main__":
 
