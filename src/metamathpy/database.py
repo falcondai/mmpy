@@ -62,6 +62,12 @@ class Database:
             print(rule)
 
     def dump(self):
+        '''
+        Returns:
+            tokens: sorted list of all unique tokens in the database
+            variables: sorted list of all unique variables in the database
+            constants: sorted list of all unique constants in the database
+        '''
 
         tokens = set([tok for stmt in self.statements.values() for tok in stmt.tokens])
         variables = set([var for rule in self.rules.values() for var in rule.variables])
